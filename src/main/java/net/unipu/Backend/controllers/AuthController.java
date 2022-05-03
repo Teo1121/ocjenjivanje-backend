@@ -14,6 +14,7 @@ import net.unipu.Backend.payload.request.TokenRefreshRequest;
 import net.unipu.Backend.payload.response.*;
 import net.unipu.Backend.security.services.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +35,7 @@ import net.unipu.Backend.repository.UserRepository;
 import net.unipu.Backend.security.jwt.JwtUtils;
 import net.unipu.Backend.security.services.UserDetailsImpl;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://192.168.1.5:3000", maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -73,7 +74,11 @@ public class AuthController {
 
     RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
-    return ResponseEntity.ok(new LoginResponse(jwt, refreshToken.getToken(), userDetails.getId(),
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.set(HttpHeaders.SET_COOKIE,
+            "token="+refreshToken.getToken()+"; Expires="+refreshToken.getExpiryDate()+"; SameSite=None; Secure; HttpOnly");
+
+    return ResponseEntity.ok().headers(responseHeaders).body(new LoginResponse(jwt, refreshToken.getToken(), userDetails.getId(),
             userDetails.getUsername(), userDetails.getEmail(), roles));
   }
 
@@ -120,18 +125,16 @@ public class AuthController {
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
 
-  @PostMapping("/refreshToken")
-  public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
-    String requestRefreshToken = request.getRefreshToken();
-
-    return refreshTokenService.findByToken(requestRefreshToken)
+  @GetMapping("/refreshToken")
+  public ResponseEntity<?> refreshToken(@CookieValue(name = "token") String refreshToken) {
+    return refreshTokenService.findByToken(refreshToken)
             .map(refreshTokenService::verifyExpiration)
             .map(RefreshToken::getUser)
             .map(user -> {
               String token = jwtUtils.generateTokenFromUsername(user.getUsername());
-              return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+              return ResponseEntity.ok(new TokenRefreshResponse(token, refreshToken));
             })
-            .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+            .orElseThrow(() -> new TokenRefreshException(refreshToken,
                     "Refresh token is not in database!"));
   }
 
