@@ -2,6 +2,7 @@ package net.unipu.Backend.models;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "reviews")
@@ -10,13 +11,12 @@ public class Review {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NotBlank
+  @NotNull
   private Integer score;
 
   @NotBlank
   private String comment;
 
-  @NotBlank
   private Boolean anonymous;
 
   @ManyToOne(fetch = FetchType.LAZY)
