@@ -1,5 +1,7 @@
 package net.unipu.Backend.payload.response;
 
+import net.unipu.Backend.models.Review;
+
 public class ReviewResponse {
 
   private Integer score;
@@ -15,6 +17,13 @@ public class ReviewResponse {
     this.comment = comment;
     this.professorsName = professorsName;
     this.studentsName = studentsName;
+  }
+
+  public ReviewResponse(Review review) {
+    this.score = review.getScore();
+    this.comment = review.getComment();
+    this.professorsName = review.getProfessor().getName();
+    this.studentsName = review.getAnonymous() ? "Anon" : review.getStudent().getUsername();
   }
 
   public Integer getScore() {

@@ -1,5 +1,6 @@
 package net.unipu.Backend.controllers;
 
+import net.unipu.Backend.models.Professor;
 import net.unipu.Backend.models.Review;
 import net.unipu.Backend.payload.request.ReviewRequest;
 import net.unipu.Backend.payload.response.MessageResponse;
@@ -32,11 +33,26 @@ public class ReviewController {
   public ResponseEntity<?> listProfessors() {
     return ResponseEntity.ok(professorRepository.findAll().stream().map(professor -> new ProfessorResponse(professor.getName(),professor.getDetails())).toList());
   }
-
+  @GetMapping("/list/professors/{name}")
+  public ResponseEntity<?> getProfessor(@PathVariable String name) {
+    Professor professor = professorRepository.findByName(name).orElseThrow(() -> new RuntimeException("professor not found"));
+    return ResponseEntity.ok(new ProfessorResponse(professor.getName(),professor.getDetails()));
+  }
   @GetMapping("/list/reviews")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> listReviews() {
-    return  ResponseEntity.ok(reviewRepository.findAll().stream().map(review -> new ReviewResponse(review.getScore(), review.getComment(),review.getProfessor().getName(),review.getAnonymous() ? "Anon" : review.getStudent().getUsername())).toList());
+    return  ResponseEntity.ok(reviewRepository.findAll().stream().map(ReviewResponse::new).toList());
+  }
+
+  @GetMapping("/list/reviews/{name}")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getReview(@PathVariable String name) {
+    return  ResponseEntity.ok(reviewRepository.findByProfessorName(professorRepository.findByName(name)
+            .orElseThrow(() -> new RuntimeException("professor not found")).getName())
+            .stream()
+            .map(ReviewResponse::new)
+            .toList());
+
   }
 
   @PostMapping("/post")
