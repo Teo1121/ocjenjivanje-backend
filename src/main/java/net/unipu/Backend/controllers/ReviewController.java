@@ -1,5 +1,6 @@
 package net.unipu.Backend.controllers;
 
+import net.unipu.Backend.exception.NotInDatabaseException;
 import net.unipu.Backend.models.Review;
 import net.unipu.Backend.payload.request.ReviewRequest;
 import net.unipu.Backend.payload.response.MessageResponse;
@@ -27,7 +28,7 @@ public class ReviewController {
   @Autowired
   UserRepository userRepository;
 
-  @GetMapping("/list")
+  @GetMapping("")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> listReviews() {
     return  ResponseEntity.ok(reviewRepository.findAll().stream().map(ReviewResponse::new).toList());
@@ -37,13 +38,13 @@ public class ReviewController {
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> getReviews(@PathVariable String name) {
     return  ResponseEntity.ok(reviewRepository.findByProfessorName(professorRepository.findByName(name)
-            .orElseThrow(() -> new RuntimeException("professor not found")).getName())
+            .orElseThrow(() -> new NotInDatabaseException(name,"professorRepository")).getName())
             .stream()
             .map(ReviewResponse::new)
             .toList());
   }
 
-  @PostMapping("/post")
+  @PostMapping("")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> postReview(@Valid @RequestBody ReviewRequest reviewRequest) {
     Review review = new Review();
@@ -51,9 +52,9 @@ public class ReviewController {
     review.setComment(reviewRequest.getComment());
     review.setScore(reviewRequest.getScore());
     review.setProfessor(professorRepository.findByName(reviewRequest.getProfessorsName())
-            .orElseThrow(() -> new RuntimeException("Professor not found")));
+            .orElseThrow(() -> new NotInDatabaseException(reviewRequest.getProfessorsName(),"professorRepository")));
     review.setStudent(userRepository.findByUsername(reviewRequest.getStudentsName())
-            .orElseThrow(() -> new RuntimeException("Student not found")));
+            .orElseThrow(() -> new NotInDatabaseException(reviewRequest.getStudentsName(),"userRepository")));
     reviewRepository.save(review);
     return  ResponseEntity.ok(new MessageResponse("Review saved!"));
   }

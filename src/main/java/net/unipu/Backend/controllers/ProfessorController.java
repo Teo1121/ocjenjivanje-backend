@@ -1,5 +1,6 @@
 package net.unipu.Backend.controllers;
 
+import net.unipu.Backend.exception.NotInDatabaseException;
 import net.unipu.Backend.models.Professor;
 import net.unipu.Backend.payload.request.ProfessorRequest;
 import net.unipu.Backend.payload.response.MessageResponse;
@@ -19,18 +20,18 @@ public class ProfessorController {
   @Autowired
   ProfessorRepository professorRepository;
 
-  @GetMapping("/list")
+  @GetMapping("")
   public ResponseEntity<?> listProfessors() {
     return ResponseEntity.ok(professorRepository.findAll().stream().map(professor -> new ProfessorResponse(professor.getName(),professor.getDetails())).toList());
   }
   @GetMapping("/{name}")
   public ResponseEntity<?> getProfessor(@PathVariable String name) {
-    Professor professor = professorRepository.findByName(name).orElseThrow(() -> new RuntimeException("professor not found"));
+    Professor professor = professorRepository.findByName(name).orElseThrow(() -> new NotInDatabaseException(name,"professorRepository"));
     return ResponseEntity.ok(new ProfessorResponse(professor.getName(),professor.getDetails()));
   }
 
-  @PostMapping("/post")
-  @PreAuthorize("hasRole('USER')")
+  @PostMapping("")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> postProfessor(@Valid @RequestBody ProfessorRequest professorRequest) {
     Professor professor = new Professor();
     professor.setDetails(professorRequest.getDetails());
@@ -39,4 +40,20 @@ public class ProfessorController {
     return  ResponseEntity.ok(new MessageResponse("Professor saved!"));
   }
 
+  @PutMapping("/{name}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> putProfessor(@Valid @RequestBody ProfessorRequest professorRequest,@PathVariable String name) {
+    professorRepository.findByName(name).map(professor -> {
+      professor.setName(professorRequest.getName());
+      professor.setDetails(professorRequest.getDetails());
+      return professorRepository.save(professor);
+    }).orElseThrow(() -> new NotInDatabaseException(name,"professorRepository"));
+    return ResponseEntity.ok(new MessageResponse("Professor updated!"));
+  }
+
+  @DeleteMapping("/{name}")
+  public ResponseEntity<?> deleteProfessor(@PathVariable String name) {
+    professorRepository.deleteByName(name).orElseThrow(() -> new NotInDatabaseException(name,"professorRepository"));
+    return ResponseEntity.ok(new MessageResponse("Professor deleted!"));
+  }
 }

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import net.unipu.Backend.exception.NotInDatabaseException;
 import net.unipu.Backend.exception.TokenRefreshException;
 import net.unipu.Backend.models.RefreshToken;
 import net.unipu.Backend.payload.request.LogOutRequest;
@@ -103,19 +104,19 @@ public class AuthController {
       switch (role) {
         case "admin" -> {
           Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                  .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                  .orElseThrow(() -> new NotInDatabaseException(ERole.ROLE_ADMIN.name(),"roleRepository"));
           roles.add(adminRole);
         }
         case "mod" -> {
           Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-                  .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                  .orElseThrow(() -> new NotInDatabaseException(ERole.ROLE_MODERATOR.name(),"roleRepository"));
           roles.add(modRole);
         }
       }
     });
 
     Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            .orElseThrow(() -> new NotInDatabaseException(ERole.ROLE_USER.name(),"roleRepository"));
     roles.add(userRole);
 
     user.setRoles(roles);
