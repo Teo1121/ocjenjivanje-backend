@@ -6,6 +6,7 @@ import net.unipu.Backend.payload.request.ProfessorRequest;
 import net.unipu.Backend.payload.response.MessageResponse;
 import net.unipu.Backend.payload.response.ProfessorResponse;
 import net.unipu.Backend.repository.ProfessorRepository;
+import net.unipu.Backend.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,9 @@ import javax.validation.Valid;
 public class ProfessorController {
   @Autowired
   ProfessorRepository professorRepository;
+
+  @Autowired
+  ReviewRepository reviewRepository;
 
   @GetMapping("")
   public ResponseEntity<?> listProfessors() {
@@ -53,6 +57,7 @@ public class ProfessorController {
 
   @DeleteMapping("/{name}")
   public ResponseEntity<?> deleteProfessor(@PathVariable String name) {
+    reviewRepository.deleteByProfessorName(name);
     professorRepository.deleteByName(name).orElseThrow(() -> new NotInDatabaseException(name,"professorRepository"));
     return ResponseEntity.ok(new MessageResponse("Professor deleted!"));
   }
