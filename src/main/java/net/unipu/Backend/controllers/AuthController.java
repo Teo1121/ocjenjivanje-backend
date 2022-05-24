@@ -12,6 +12,7 @@ import net.unipu.Backend.exception.TokenRefreshException;
 import net.unipu.Backend.models.RefreshToken;
 import net.unipu.Backend.payload.request.LogOutRequest;
 import net.unipu.Backend.payload.response.*;
+import net.unipu.Backend.security.services.RSAKeyGenerator;
 import net.unipu.Backend.security.services.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,8 @@ public class AuthController {
   AuthenticationManager authenticationManager;
 
   @Autowired
+  RSAKeyGenerator rsaKeyGenerator;
+  @Autowired
   UserRepository userRepository;
 
   @Autowired
@@ -57,8 +60,15 @@ public class AuthController {
   @Autowired
   RefreshTokenService refreshTokenService;
 
+  @GetMapping("/key")
+  public ResponseEntity<?> publicKey() {
+    return ResponseEntity.ok(new MessageResponse(rsaKeyGenerator.getFormattedPublicKey()));
+  }
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+
+    loginRequest.setPassword(rsaKeyGenerator.decode(loginRequest.getPassword()));
+    System.out.println(loginRequest.getPassword());
 
     Authentication authentication = authenticationManager
             .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
