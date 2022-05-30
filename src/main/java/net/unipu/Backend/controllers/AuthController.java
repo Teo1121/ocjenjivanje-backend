@@ -68,7 +68,6 @@ public class AuthController {
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
     loginRequest.setPassword(rsaKeyGenerator.decode(loginRequest.getPassword()));
-    System.out.println(loginRequest.getPassword());
 
     Authentication authentication = authenticationManager
             .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -95,6 +94,9 @@ public class AuthController {
   @PostMapping("/signup")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+
+    signUpRequest.setPassword(rsaKeyGenerator.decode(signUpRequest.getPassword()));
+
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
     }
@@ -147,6 +149,21 @@ public class AuthController {
             })
             .orElseThrow(() -> new TokenRefreshException(refreshToken,
                     "Refresh token is not in database!"));
+  }
+
+  @GetMapping("/users")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> listUsers() {
+    return ResponseEntity.ok(userRepository.findAll().stream().map(User::getUsername).toList());
+  }
+
+  @GetMapping("/users/{username}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> listUsers(@PathVariable String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(() -> new NotInDatabaseException(username,"userRepository"));
+    UserResponse userResponse = new UserResponse(user.getId(),user.getUsername(),user.getEmail(),
+            user.getRoles().stream().map(role -> role.getName().toString()).toList());
+    return ResponseEntity.ok(userResponse);
   }
 
   @PostMapping("/logout")
