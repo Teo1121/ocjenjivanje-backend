@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import net.unipu.Backend.models.User;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -15,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Boolean existsByUsername(String username);
 
   Boolean existsByEmail(String email);
+
+  @Transactional
+  Optional<User> deleteByUsername(String username);
 }

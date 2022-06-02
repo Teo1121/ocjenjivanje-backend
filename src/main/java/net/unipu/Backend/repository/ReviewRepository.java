@@ -13,4 +13,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByStudentUsername(String username);
     @Transactional
     void deleteByProfessorName(String name);
+
+    @Transactional
+    void deleteByStudentUsername(String name);
 }
