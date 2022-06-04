@@ -44,6 +44,13 @@ public class ReviewController {
             .toList());
   }
 
+
+  @GetMapping("/stats")
+  @PreAuthorize("hasRole('MODERATOR')")
+  public ResponseEntity<?> getReviewStats() {
+    return ResponseEntity.ok(reviewRepository.scoreByProfessor());
+  }
+
   @PostMapping("")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> postReview(@Valid @RequestBody ReviewRequest reviewRequest) {
