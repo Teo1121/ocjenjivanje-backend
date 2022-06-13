@@ -13,7 +13,7 @@ INSERT INTO professors(name,details) VALUES('Mirjana Božić','Zna sta radi, ali
 INSERT INTO professors(name,details) VALUES('Radmilo Crnčević','Nezna nista');
 
 INSERT INTO reviews(score,comment,anonymous,professor_id,user_id) VALUES(5,'Stvarno odlican, bez rijeci',false,1,1);
-INSERT INTO reviews(score,comment,anonymous,professor_id,user_id) VALUES(5,'',false,1,1);
+INSERT INTO reviews(score,comment,anonymous,professor_id,user_id) VALUES(5,'top',false,1,1);
 
 INSERT INTO reviews(score,comment,anonymous,professor_id,user_id) VALUES(4,'Ok, ima puno gorih',false,2,1);
 INSERT INTO reviews(score,comment,anonymous,professor_id,user_id) VALUES(3,'Full me zbunila s gradivom',true,2,1);

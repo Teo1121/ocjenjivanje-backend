@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
+@CrossOrigin(origins = {"http://tricky-able.surge.sh/","https://tricky-able.surge.sh/"}, maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/professor")
 public class ProfessorController {
