@@ -56,6 +56,7 @@ public class ProfessorController {
   }
 
   @DeleteMapping("/{name}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> deleteProfessor(@PathVariable String name) {
     reviewRepository.deleteByProfessorName(name);
     professorRepository.deleteByName(name).orElseThrow(() -> new NotInDatabaseException(name,"professorRepository"));
