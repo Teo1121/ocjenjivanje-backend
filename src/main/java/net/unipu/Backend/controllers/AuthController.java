@@ -36,7 +36,7 @@ import net.unipu.Backend.repository.UserRepository;
 import net.unipu.Backend.security.jwt.JwtUtils;
 import net.unipu.Backend.security.services.UserDetailsImpl;
 
-@CrossOrigin(origins = {"http://tricky-able.surge.sh/","https://tricky-able.surge.sh/"}, maxAge = 3600, allowCredentials = "true")
+@CrossOrigin(origins = {"http://tricky-able.surge.sh/","https://tricky-able.surge.sh/","https://ocjenjivanje.surge.sh/","http://ocjenjivanje.surge.sh/"}, maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
